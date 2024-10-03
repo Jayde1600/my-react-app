@@ -10,7 +10,7 @@ const courses = [
     {id: 3, name: 'course3'},
 ];
 
-app.get('/' , (req, res) => { //req = request and res = response  '/' get root of the website
+app.get('/', (req, res) => { //req = request and res = response  '/' get root of the website
     res.send('Hello World!!');
 });
 
@@ -19,11 +19,7 @@ app.get('/api/courses', (req, res) => {
 });
 
 app.post('/api/courses', (req, res) => {
-    const schema = Joi.object({
-        name: Joi.string().min(3).required()
-    });
-
-    const { error } = schema.validate(req.body);
+    const { error } = validateCourse(req.body);
     if (error) {
         //400 Bad Request
         return res.status(400).send(error.details[0].message); // first element and get message property
@@ -37,10 +33,51 @@ app.post('/api/courses', (req, res) => {
     res.send(course);
 });
 
+// Look up course with existing ID first, if doesn't exist then return 404
+// If invalid, return 400 meaning Bad Request
+// Update course, return the updated course
+app.put('/api/courses/:id', (req, res) => {
+
+    let course = courses.find(x => x.id === parseInt(req.params.id));
+    if (!course) return res.status(404).send('The course was not found!');
+
+    const { error } = validateCourse(req.body);
+    if (error) {
+        //400 Bad Request
+        return res.status(400).send(error.details[0].message); // first element and get message property
+    }
+
+    course.name = req.body.name;
+    res.send(course);
+});
+
+function validateCourse(course) {
+    const schema = Joi.object({
+        name: Joi.string().min(3).required()
+    });
+
+    return schema.validate(course); // Return the result of the validation
+}
+
+app.delete('/api/courses/:id', (req, res) => {
+    //Look up the course, if it doesn't exist return 404
+    let course = courses.find(x => x.id === parseInt(req.params.id));
+    if (!course) return res.status(404).send('The course was not found!');
+
+    //Delete
+    const index = courses.indexOf(course);
+    courses.splice(index, 1);
+
+    // returning response to the user
+    res.send(course);
+});
+
+
+
+
 app.get('/api/courses/:id', (req, res) => {
     let course = courses.find(x => x.id === parseInt(req.params.id)); //boolean value determines if this is the course we are looking for
-    if (!course) res.status(404).send('The course was not found!');
-    // if course not found, should return error 404/ http code of 404
+    if (!course) return res.status(404).send('The course was not found!');
     res.send(course);
 });
 
