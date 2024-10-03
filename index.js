@@ -2,7 +2,7 @@ const Joi = require('joi'); // Joi
 const express = require('express');  //import express from 'express' equivalent/ load express module
 const app = express();  //calls function
 
-app.use(express.json());  // returns middleware
+app.use(express.json());
 
 const courses = [
     {id: 1, name: 'course1'},
@@ -10,7 +10,7 @@ const courses = [
     {id: 3, name: 'course3'},
 ];
 
-app.get('/', (req, res) => { //req = request and res = response  '/' get root of the website
+app.get('/', (req, res) => { //req = request and res = response  '/' get root of the website localhost:3000
     res.send('Hello World!!');
 });
 
@@ -71,9 +71,6 @@ app.delete('/api/courses/:id', (req, res) => {
     // returning response to the user
     res.send(course);
 });
-
-
-
 
 app.get('/api/courses/:id', (req, res) => {
     let course = courses.find(x => x.id === parseInt(req.params.id)); //boolean value determines if this is the course we are looking for
